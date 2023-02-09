@@ -140,15 +140,17 @@ fn open_new_directory(
     warp_storage: &mut warp_storage,
     folder_name: &str,
 ) -> Result<uplink_storage, Error> {
-    let current_path = PathBuf::from(
-        warp_storage
-            .get_path()
-            .join(folder_name)
-            .to_string_lossy()
-            .replace("\\", "/"),
-    );
+    warp_storage.select(folder_name)?;
 
-    warp_storage.set_path(current_path);
+    // let current_path = PathBuf::from(
+    //     warp_storage
+    //         .get_path()
+    //         .join(folder_name)
+    //         .to_string_lossy()
+    //         .replace("\\", "/"),
+    // );
+
+    // warp_storage.set_path(current_path);
 
     log::info!(
         "Navigation to directory {:?} worked!",

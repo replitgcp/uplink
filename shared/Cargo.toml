@@ -9,4 +9,4 @@ edition = "2021"
 unic-langid = "0.9.1"
 isolang = "2.2.0"
 fluent-templates = "0.8.0"
-warp = { git = "https://github.com/Satellite-im/Warp", rev = "aff8e57003fbdb766f0b24c4acb4178e319d7fad" }
+warp = { git = "https://github.com/Satellite-im/Warp", rev = "739d4a0f0b098f02020f3e48b2856fe53552f6c0" }
