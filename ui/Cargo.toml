@@ -18,10 +18,10 @@ tokio-util = { version = "0.7", features = ["full"] }
 arboard = "3.1.0"
 uuid = { version = "1.0", features = ["serde", "v4"] }
 lipsum = "0.8.2"
-warp = { git = "https://github.com/Satellite-im/Warp", rev = "739d4a0f0b098f02020f3e48b2856fe53552f6c0" }
-warp-mp-ipfs = { git = "https://github.com/Satellite-im/Warp", rev = "739d4a0f0b098f02020f3e48b2856fe53552f6c0" }
-warp-rg-ipfs = { git = "https://github.com/Satellite-im/Warp", rev = "739d4a0f0b098f02020f3e48b2856fe53552f6c0" }
-warp-fs-ipfs = { git = "https://github.com/Satellite-im/Warp", rev = "739d4a0f0b098f02020f3e48b2856fe53552f6c0" }
+warp = { git = "https://github.com/Satellite-im/Warp", rev = "b76a52d5932621380f231a161ac075d13af25fac" }
+warp-mp-ipfs = { git = "https://github.com/Satellite-im/Warp", rev = "b76a52d5932621380f231a161ac075d13af25fac" }
+warp-rg-ipfs = { git = "https://github.com/Satellite-im/Warp", rev = "b76a52d5932621380f231a161ac075d13af25fac" }
+warp-fs-ipfs = { git = "https://github.com/Satellite-im/Warp", rev = "b76a52d5932621380f231a161ac075d13af25fac" }
 rfd = "0.10.0"
 mime = "0.3.16"
 names = "0.14.0"
