@@ -1,0 +1,30 @@
+{
+  "general": {
+    "theme": "",
+    "show_splash": false,
+    "enable_overlay": false
+  },
+  "privacy": {
+    "satellite_sync_nodes": false,
+    "safer_file_scanning": false
+  },
+  "audiovideo": {
+    "noise_suppression": false,
+    "call_timer": false,
+    "interface_sounds": false,
+    "media_sounds": false
+  },
+  "extensions": {
+    "enable": false
+  },
+  "developer": {
+    "developer_mode": true
+  },
+  "notifications": {
+    "enabled": false,
+    "show_app_icon": false,
+    "friends_notifications": false,
+    "messages_notifications": false,
+    "settings_notifications": false
+  }
+}

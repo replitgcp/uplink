@@ -1,0 +1,103 @@
+{
+  "account": {
+    "identity": {
+      "identity": {
+        "username": "asdf",
+        "short_id": [
+          67,
+          82,
+          75,
+          118,
+          90,
+          77,
+          88,
+          111
+        ],
+        "did_key": "did:key:z6Mkkw3ABCehjgC4xuVysz3ib653BBQUuEkxY5hZCRKvZMXo",
+        "graphics": {
+          "profile_picture": "",
+          "profile_banner": ""
+        },
+        "status_message": null,
+        "roles": [],
+        "available_badges": [],
+        "active_badge": {
+          "name": "",
+          "icon": ""
+        }
+      },
+      "status": "offline",
+      "platform": "unknown"
+    }
+  },
+  "route": {
+    "active": ""
+  },
+  "chats": {
+    "all": {
+      "6bd1262a-9015-4741-1a8b-bf417150ee90": {
+        "id": "6bd1262a-9015-4741-1a8b-bf417150ee90",
+        "unreads": 0
+      }
+    },
+    "active": "6bd1262a-9015-4741-1a8b-bf417150ee90",
+    "in_sidebar": [
+      "6bd1262a-9015-4741-1a8b-bf417150ee90"
+    ],
+    "favorites": []
+  },
+  "friends": {},
+  "settings": {
+    "language": ""
+  },
+  "ui": {
+    "notifications": {
+      "friends": 0,
+      "messages": 0,
+      "settings": 0
+    },
+    "theme": null,
+    "enable_overlay": false,
+    "sidebar_hidden": true,
+    "metadata": {
+      "focused": false,
+      "maximized": false,
+      "minimized": false,
+      "width": 300,
+      "height": 534,
+      "minimal_view": true
+    }
+  },
+  "configuration": {
+    "config": {
+      "general": {
+        "theme": "",
+        "show_splash": false,
+        "enable_overlay": false
+      },
+      "privacy": {
+        "satellite_sync_nodes": false,
+        "safer_file_scanning": false
+      },
+      "audiovideo": {
+        "noise_suppression": false,
+        "call_timer": false,
+        "interface_sounds": false,
+        "media_sounds": false
+      },
+      "extensions": {
+        "enable": false
+      },
+      "developer": {
+        "developer_mode": true
+      },
+      "notifications": {
+        "enabled": false,
+        "show_app_icon": false,
+        "friends_notifications": false,
+        "messages_notifications": false,
+        "settings_notifications": false
+      }
+    }
+  }
+}
