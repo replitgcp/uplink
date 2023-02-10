@@ -116,7 +116,10 @@ async fn handle_login(notify: Arc<Notify>) {
         }
     };
 
-    let account_exists = warp.tesseract.exist("keypair");
+    let account_exists = match Tesseract::from_file(&STATIC_ARGS.tesseract_path) {
+        Ok(_) => true,
+        Err(_) => false,
+    };
 
     // until the user logs in, raygun and multipass are no use.
     let warp: Option<manager::Warp> = loop {
@@ -229,6 +232,9 @@ async fn wait_for_multipass(warp: &mut manager::Warp, notify: Arc<Notify>) -> Re
 // don't set file or autosave until tesseract is unlocked
 async fn init_tesseract() -> Result<Tesseract, Error> {
     log::trace!("initializing tesseract");
+
+    println!("Tess Path: {:?}", &STATIC_ARGS.tesseract_path);
+
     // from_file automatically sets file and autosave
     let tesseract = match Tesseract::from_file(&STATIC_ARGS.tesseract_path) {
         Ok(tess) => tess,
