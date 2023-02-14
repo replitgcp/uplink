@@ -21,10 +21,10 @@ arboard = "3.1.0"
 uuid = { version = "1.0", features = ["serde", "v4"] }
 lipsum = "0.8.2"
 
-warp = { git = "https://github.com/Satellite-im/Warp", rev = "a7e075238ee926919894cb27d743284ed3724dc2" }
-warp-mp-ipfs = { git = "https://github.com/Satellite-im/Warp", rev = "a7e075238ee926919894cb27d743284ed3724dc2" }
-warp-rg-ipfs = { git = "https://github.com/Satellite-im/Warp", rev = "a7e075238ee926919894cb27d743284ed3724dc2" }
-warp-fs-ipfs = { git = "https://github.com/Satellite-im/Warp", rev = "a7e075238ee926919894cb27d743284ed3724dc2" }
+warp = { git = "https://github.com/Satellite-im/Warp", rev = "523b6921ecaa4797231dd7ac85d9baf5d6d65644" }
+warp-mp-ipfs = { git = "https://github.com/Satellite-im/Warp", rev = "523b6921ecaa4797231dd7ac85d9baf5d6d65644" }
+warp-rg-ipfs = { git = "https://github.com/Satellite-im/Warp", rev = "523b6921ecaa4797231dd7ac85d9baf5d6d65644" }
+warp-fs-ipfs = { git = "https://github.com/Satellite-im/Warp", rev = "523b6921ecaa4797231dd7ac85d9baf5d6d65644" }
 
 rfd = "0.10.0"
 mime = "0.3.16"
