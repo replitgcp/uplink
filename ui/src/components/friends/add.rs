@@ -90,6 +90,14 @@ pub fn AddFriend(cx: Scope) -> Element {
                         | Error::InvalidIdentifierCondition
                         | Error::CannotSendSelfFriendRequest => {
                             log::warn!("add cannot add self: {}", e);
+                            state.write().mutate(Action::AddToastNotification(
+                                ToastNotification::init(
+                                    "".into(),
+                                    get_local_text("friends.copied-did"),
+                                    None,
+                                    5,
+                                ),
+                            ));
                         }
                         Error::PublicKeyIsBlocked => {
                             log::warn!("add friend failed: {}", e);
