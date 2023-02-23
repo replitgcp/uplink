@@ -26,6 +26,7 @@ pub fn AddFriend(cx: Scope) -> Element {
     let friend_input = use_state(cx, String::new);
     let friend_input_valid = use_state(cx, || false);
     let request_sent = use_state(cx, || false);
+    let errors_toast = use_state(cx, || Error::CannotSendSelfFriendRequest);
     // used when copying the user's id to the clipboard
     let my_id: &UseState<Option<String>> = use_state(cx, || None);
     // Set up validation options for the input field
@@ -90,14 +91,6 @@ pub fn AddFriend(cx: Scope) -> Element {
                         | Error::InvalidIdentifierCondition
                         | Error::CannotSendSelfFriendRequest => {
                             log::warn!("add cannot add self: {}", e);
-                            state.write().mutate(Action::AddToastNotification(
-                                ToastNotification::init(
-                                    "".into(),
-                                    get_local_text("friends.copied-did"),
-                                    None,
-                                    5,
-                                ),
-                            ));
                         }
                         Error::PublicKeyIsBlocked => {
                             log::warn!("add friend failed: {}", e);
@@ -130,6 +123,21 @@ pub fn AddFriend(cx: Scope) -> Element {
                     Err(e) => log::error!("get own did failed: {}", e),
                 }
             }
+        }
+    });
+
+    let error_ch = use_future(cx, (), |_| {
+        to_owned![errors_toast];
+        async move {
+            println!("{}", Error);
+            state
+                .write()
+                .mutate(Action::AddToastNotification(ToastNotification::init(
+                    "".into(),
+                    get_local_text("friends.copied-did"),
+                    None,
+                    5,
+                )));
         }
     });
 
@@ -192,6 +200,16 @@ pub fn AddFriend(cx: Scope) -> Element {
                                 }
                             },
                             Err(e) => {
+                                // if e == Error::CannotSendSelfFriendRequest {
+                                //     state.write().mutate(Action::AddToastNotification(
+                                //         ToastNotification::init(
+                                //             "".into(),
+                                //             get_local_text("friends.copied-did"),
+                                //             None,
+                                //             5,
+                                //         ),
+                                //     ));
+                                // }
                                 log::error!("could not get did from str: {}", e);
                             }
                         }
