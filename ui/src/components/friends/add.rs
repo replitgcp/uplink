@@ -65,6 +65,17 @@ pub fn AddFriend(cx: Scope) -> Element {
         my_id.set(None);
     }
 
+    let gettoast = move || {
+        state
+            .write()
+            .mutate(Action::AddToastNotification(ToastNotification::init(
+                "".into(),
+                get_local_text("friends.copied-did"),
+                None,
+                5,
+            )));
+    };
+
     let ch = use_coroutine(cx, |mut rx: UnboundedReceiver<DID>| {
         to_owned![request_sent];
         async move {
@@ -126,20 +137,13 @@ pub fn AddFriend(cx: Scope) -> Element {
         }
     });
 
-    let error_ch = use_future(cx, (), |_| {
-        to_owned![errors_toast];
-        async move {
-            println!("{}", Error);
-            state
-                .write()
-                .mutate(Action::AddToastNotification(ToastNotification::init(
-                    "".into(),
-                    get_local_text("friends.copied-did"),
-                    None,
-                    5,
-                )));
-        }
-    });
+    // let error_ch = use_future(cx, (), |_| {
+    //     to_owned![errors_toast];
+    //     // loop {
+    //     println!("{}", errors_toast);
+
+    //     // }
+    // });
 
     cx.render(rsx!(
         div {
@@ -174,6 +178,15 @@ pub fn AddFriend(cx: Scope) -> Element {
                                 }
                             },
                             Err(e) => {
+                                println!("herer");
+                                state
+                                .write()
+                                .mutate(Action::AddToastNotification(ToastNotification::init(
+                                    "".into(),
+                                    get_local_text("friends.copied-did"),
+                                    None,
+                                    5,
+                                )));
                                 log::error!("could not get did from str: {}", e);
                             }
                         }
@@ -200,15 +213,16 @@ pub fn AddFriend(cx: Scope) -> Element {
                                 }
                             },
                             Err(e) => {
+                                println!("herer");
                                 // if e == Error::CannotSendSelfFriendRequest {
-                                //     state.write().mutate(Action::AddToastNotification(
-                                //         ToastNotification::init(
-                                //             "".into(),
-                                //             get_local_text("friends.copied-did"),
-                                //             None,
-                                //             5,
-                                //         ),
-                                //     ));
+                                    state.write().mutate(Action::AddToastNotification(
+                                        ToastNotification::init(
+                                            "".into(),
+                                            get_local_text("friends.copied-did"),
+                                            None,
+                                            5,
+                                        ),
+                                    ));
                                 // }
                                 log::error!("could not get did from str: {}", e);
                             }
