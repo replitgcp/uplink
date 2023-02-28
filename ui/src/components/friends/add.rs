@@ -178,12 +178,12 @@ pub fn AddFriend(cx: Scope) -> Element {
                                 }
                             },
                             Err(e) => {
-                                println!("herer");
+                                println!("enter error");
                                 state
                                 .write()
                                 .mutate(Action::AddToastNotification(ToastNotification::init(
                                     "".into(),
-                                    get_local_text("friends.copied-did"),
+                                    get_local_text("friends.add-self-error"),
                                     None,
                                     5,
                                 )));
@@ -209,21 +209,30 @@ pub fn AddFriend(cx: Scope) -> Element {
                                     ident.set_did_key(did);
                                     state.write().mutate(Action::SendRequest(ident));
                                 } else {
+                                    let me = my_id.as_ref().unwrap();
+                                    // if DID::to_string(&did) == me {
+                                        state.write().mutate(Action::AddToastNotification(
+                                            ToastNotification::init(
+                                                "".into(),
+                                                get_local_text("friends.add-self-error"),
+                                                None,
+                                                5,
+                                            ),
+                                        ));
+                                    // }
                                     ch.send(did);
                                 }
                             },
                             Err(e) => {
-                                println!("herer");
-                                // if e == Error::CannotSendSelfFriendRequest {
+                                println!("button error");
                                     state.write().mutate(Action::AddToastNotification(
                                         ToastNotification::init(
                                             "".into(),
-                                            get_local_text("friends.copied-did"),
+                                            get_local_text("friends.add-self-error"),
                                             None,
                                             5,
                                         ),
                                     ));
-                                // }
                                 log::error!("could not get did from str: {}", e);
                             }
                         }
