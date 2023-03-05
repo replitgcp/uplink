@@ -1,6 +1,6 @@
 //#![deny(elided_lifetimes_in_paths)]
 
-use ::extensions::ExtensionProxy;
+use ::extensions::{ExtensionEvent, ExtensionProxy};
 use clap::Parser;
 use common::icons::outline::Shape as Icon;
 use common::icons::Icon as IconElement;
@@ -835,6 +835,12 @@ fn app(cx: Scope) -> Element {
                     log::error!("{e}");
                 }
             }
+        }
+    });
+
+    let _ch: &Coroutine<ExtensionEvent> = use_coroutine(cx, |mut rx| async move {
+        while let Some(ExtensionEvent::Notification) = rx.next().await {
+            log::debug!("Notification");
         }
     });
 

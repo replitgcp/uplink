@@ -144,6 +144,7 @@ impl Extension for EmojiSelector {
 
     fn render<'a>(&self, cx: &'a ScopeState) -> Element<'a> {
         let styles = self.stylesheet();
+        let channel = use_coroutine_handle::<ExtensionEvent>(cx)?;
         let display_selector = use_state(cx, || false);
 
         cx.render(rsx! (
@@ -155,6 +156,7 @@ impl Extension for EmojiSelector {
                 icon: Icon::FaceSmile,
                 onpress: move |_| {
                     display_selector.set(!display_selector.clone());
+                    channel.send(ExtensionEvent::Notification);
                 }
             }
         ))

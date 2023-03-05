@@ -22,6 +22,11 @@ pub enum Location {
     Settings,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ExtensionEvent {
+    Notification
+}
+
 // Right now IconLaunched is the only supported render mode. This will evolve over time.
 pub enum Type {
     IconLaunched,

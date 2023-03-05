@@ -35,7 +35,8 @@ impl Extension for ExampleExtension {
 
     fn render<'a>(&self, cx: &'a ScopeState) -> Element<'a> {
         let styles = self.stylesheet();
-
+        let channel = use_coroutine_handle::<ExtensionEvent>(cx)?;
+        channel.send(ExtensionEvent::Notification);
         cx.render(rsx! {
             style { "{styles}" },
             Button {
