@@ -333,7 +333,7 @@ fn get_messages(cx: Scope<ComposeProps>) -> Element {
 
     let script = include_str!("./script.js");
     use_eval(cx)(script.to_string());
-
+    println!("Test");
     let ch = use_coroutine(cx, |mut rx: UnboundedReceiver<MessagesCommand>| {
         //to_owned![];
         async move {
@@ -481,6 +481,8 @@ fn get_messages(cx: Scope<ComposeProps>) -> Element {
                             with_sender: if sender.username().is_empty() { get_local_text("messages.you") } else { sender.username()},
                             remote: group.remote,
                             messages.iter().map(|grouped_message| {
+                                let script = include_str!("./script.js");
+                                use_eval(cx)(script.to_string());
                                 let message = grouped_message.message.clone();
                                 let message2 = message.clone();
                                 let message3 = message.clone();
