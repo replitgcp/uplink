@@ -331,13 +331,8 @@ fn get_messages(cx: Scope<ComposeProps>) -> Element {
     let user = state.read().did_key();
 
     let eval = use_eval(cx);
-    use_effect(cx, (), move |_| {
-        to_owned![eval];
-        async move {
-            let script = include_str!("./script.js");
-            eval(script.to_string());
-        }
-    });
+    let script = include_str!("./script.js");
+    eval(script.to_string());
 
     let ch = use_coroutine(cx, |mut rx: UnboundedReceiver<MessagesCommand>| {
         //to_owned![];
