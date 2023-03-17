@@ -162,11 +162,17 @@ impl State {
             Action::Navigate(to) => self.set_active_route(to),
             // Generic UI
             Action::SetMeta(metadata) => self.ui.metadata = metadata,
-            Action::ClearPopout(window) => self.ui.clear_popout(window),
-            Action::SetPopout(webview) => self.ui.set_popout(webview),
+            Action::ClearCallPopout(window) => self.ui.clear_call_popout(&window),
+            Action::SetCallPopout(webview) => self.ui.set_call_popout(webview),
             // Development
             Action::SetDebugLogger(webview) => self.ui.set_debug_logger(webview),
-            Action::ClearDebugLogger(window) => self.ui.clear_debug_logger(window),
+            Action::ClearDebugLogger(window) => self.ui.clear_debug_logger(&window),
+            Action::AddFilePreview(id, window_id) => self.ui.add_file_preview(id, window_id),
+            Action::ForgetFilePreview(id) => {
+                let _ = self.ui.file_previews.remove(&id);
+            }
+            Action::ClearFilePreviews(window) => self.ui.clear_file_previews(&window),
+            Action::ClearAllPopoutWindows(window) => self.ui.clear_all_popout_windows(&window),
             // Themes
             Action::SetTheme(theme) => self.set_theme(Some(theme)),
             Action::ClearTheme => self.set_theme(None),
@@ -504,13 +510,15 @@ impl State {
         state
     }
     fn load_mock() -> Self {
-        let contents = match fs::read_to_string(&STATIC_ARGS.mock_cache_path) {
-            Ok(r) => r,
-            Err(_) => {
-                return generate_mock();
-            }
-        };
-        serde_json::from_str(&contents).unwrap_or_else(|_| generate_mock())
+        generate_mock()
+        // the following doesn't work anymore now that Identities are centralized
+        // let contents = match fs::read_to_string(&STATIC_ARGS.mock_cache_path) {
+        //     Ok(r) => r,
+        //     Err(_) => {
+        //         return generate_mock();
+        //     }
+        // };
+        // serde_json::from_str(&contents).unwrap_or_else(|_| generate_mock())
     }
 }
 
@@ -934,7 +942,7 @@ impl State {
     /// Analogous to Hang Up
     fn disable_media(&mut self) {
         self.chats.active_media = None;
-        self.ui.popout_player = false;
+        self.ui.popout_media_player = false;
         self.ui.current_call = None;
     }
     pub fn has_toasts(&self) -> bool {
@@ -1131,6 +1139,8 @@ pub struct GroupedMessage<'a> {
     pub message: &'a ui_adapter::Message,
     pub is_first: bool,
     pub is_last: bool,
+    // if the user scrolls over this message, more messages should be loaded
+    pub should_fetch_more: bool,
 }
 
 impl<'a> GroupedMessage<'a> {
@@ -1142,12 +1152,20 @@ impl<'a> GroupedMessage<'a> {
 pub fn group_messages<'a>(
     my_did: DID,
     num: usize,
+    when_to_fetch_more: usize,
     input: &'a VecDeque<ui_adapter::Message>,
 ) -> Vec<MessageGroup<'a>> {
     let mut messages: Vec<MessageGroup<'a>> = vec![];
     let to_skip = input.len().saturating_sub(num);
     // the most recent message appears last in the list.
     let iter = input.iter().skip(to_skip);
+    let mut need_to_fetch_more = when_to_fetch_more;
+
+    let mut need_more = || {
+        let r = need_to_fetch_more > 0;
+        need_to_fetch_more = need_to_fetch_more.saturating_sub(1);
+        r
+    };
 
     for msg in iter {
         if let Some(group) = messages.iter_mut().last() {
@@ -1156,6 +1174,7 @@ pub fn group_messages<'a>(
                     message: msg,
                     is_first: false,
                     is_last: true,
+                    should_fetch_more: need_more(),
                 };
                 // I really hope last() is O(1) time
                 if let Some(g) = group.messages.iter_mut().last() {
@@ -1173,6 +1192,7 @@ pub fn group_messages<'a>(
             message: msg,
             is_first: true,
             is_last: true,
+            should_fetch_more: need_more(),
         };
         grp.messages.push(g);
         messages.push(grp);
