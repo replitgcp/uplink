@@ -131,26 +131,26 @@ impl EmojiSelector {
                 onmouseenter: |_| {
                     #[cfg(not(target_os = "macos"))] 
                     {
-                        *mouse_over_emoji_selector.write_silent() = true; 
+                        *mouse_over_emoji_selector.write_silent() = true;
                     }
                 },
                 onmouseleave: |_| {
-                    #[cfg(not(target_os = "macos"))] 
+                    #[cfg(not(target_os = "macos"))]
                     {
-                        *mouse_over_emoji_selector.write_silent() = false; 
+                        *mouse_over_emoji_selector.write_silent() = false;
                         eval(focus_script.to_string());
                     }
                 },
                 id: "emoji_selector",
                 tabindex: "0",
                 onblur: |_| {
-                    #[cfg(target_os = "macos")] 
+                    #[cfg(target_os = "macos")]
                     {
                         if !*mouse_over_emoji_button.read() {
                             hide.set(false);
                         }
                     }
-                    #[cfg(not(target_os = "macos"))] 
+                    #[cfg(not(target_os = "macos"))]
                     {
                         if !*mouse_over_emoji_button.read() && !*mouse_over_emoji_selector.read() {
                             hide.set(false);
