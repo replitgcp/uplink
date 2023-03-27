@@ -40,6 +40,7 @@ opener.workspace = true
 open.workspace = true
 wry.workspace = true
 derive_more.workspace = true
+clipboard.workspace = true
 colored.workspace = true
 notify.workspace = true
 rand.workspace = true

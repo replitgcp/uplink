@@ -1,17 +1,18 @@
 use std::io::Cursor;
 
+use common::icons::outline::Shape as Icon;
 use common::{
     language::get_local_text, state::State, DOC_EXTENSIONS, IMAGE_EXTENSIONS, STATIC_ARGS,
     VIDEO_FILE_EXTENSIONS,
 };
 use dioxus::prelude::*;
-use warp::constellation::file::File;
-
 use dioxus_desktop::{use_window, DesktopContext, LogicalSize};
 use image::io::Reader as ImageReader;
+use kit::components::context_menu::{ContextItem, ContextMenu};
 use kit::elements::file::get_file_extension;
 use notify::{Config, RecommendedWatcher, RecursiveMode, Watcher};
 use std::sync::mpsc::channel;
+use warp::constellation::file::File;
 
 use crate::utils::WindowDropHandler;
 
@@ -118,19 +119,42 @@ pub fn FilePreview(cx: Scope, file: File, _drop_handler: WindowDropHandler) -> E
                 {
                 if file_format != FileFormat::Other && has_thumbnail {
                     rsx!{
-                        div {
-                            img {
-                                src: "{thumbnail}",
-                                width: "100%",
-                        },
-                            p {
-                                class: "thumbnail-text thumb-text",
-                                format!("{}", match file_format {
-                                    FileFormat::Video => get_local_text("files.video-thumb"),
-                                    FileFormat::Image => get_local_text("files.image-thumb"),
-                                    FileFormat::Document => get_local_text("files.doc-thumb"),
-                                    _ => String::from("Thumb"),
-                                }),
+                        ContextMenu {
+                            key: "favorite",
+                            id: "test".to_string(),
+                            items: cx.render(rsx!(
+                                ContextItem {
+                                    icon: Icon::Config,
+                                    text: "Copy to clipboard".to_string(),
+                                    onpress: move |_| {
+                                        let mut buffer = Vec::new();
+                                        file.read_to_end(&mut buffer)?;
+
+                                        // Initialize the clipboard context
+                                        let mut ctx: ClipboardContext = ClipboardProvider::new()?;
+
+                                        // Copy the buffer to the clipboard
+                                        ctx.set_contents(buffer)?;
+
+
+                                        println!("Copy to clipboard");
+                                    }
+                                }
+                            )),
+                            div {
+                                img {
+                                    src: "{thumbnail}",
+                                    width: "100%",
+                            },
+                                p {
+                                    class: "thumbnail-text thumb-text",
+                                    format!("{}", match file_format {
+                                        FileFormat::Video => get_local_text("files.video-thumb"),
+                                        FileFormat::Image => get_local_text("files.image-thumb"),
+                                        FileFormat::Document => get_local_text("files.doc-thumb"),
+                                        _ => String::from("Thumb"),
+                                    }),
+                                }
                             }
                         }
                         }
