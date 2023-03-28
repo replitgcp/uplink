@@ -1,6 +1,8 @@
 use std::io::Cursor;
 
+use clipboard::{ClipboardContext, ClipboardProvider};
 use common::icons::outline::Shape as Icon;
+use common::icons::IconButton;
 use common::{
     language::get_local_text, state::State, DOC_EXTENSIONS, IMAGE_EXTENSIONS, STATIC_ARGS,
     VIDEO_FILE_EXTENSIONS,
@@ -119,42 +121,28 @@ pub fn FilePreview(cx: Scope, file: File, _drop_handler: WindowDropHandler) -> E
                 {
                 if file_format != FileFormat::Other && has_thumbnail {
                     rsx!{
-                        ContextMenu {
-                            key: "favorite",
-                            id: "test".to_string(),
-                            items: cx.render(rsx!(
-                                ContextItem {
-                                    icon: Icon::Config,
-                                    text: "Copy to clipboard".to_string(),
-                                    onpress: move |_| {
-                                        let mut buffer = Vec::new();
-                                        file.read_to_end(&mut buffer)?;
-
-                                        // Initialize the clipboard context
-                                        let mut ctx: ClipboardContext = ClipboardProvider::new()?;
-
-                                        // Copy the buffer to the clipboard
-                                        ctx.set_contents(buffer)?;
-
-
-                                        println!("Copy to clipboard");
-                                    }
-                                }
-                            )),
-                            div {
-                                img {
-                                    src: "{thumbnail}",
-                                    width: "100%",
+                        div {
+                            id: "copy-button",
+                            IconButton {
+                                icon: Icon::ClipboardDocument,
+                                onclick: move |_| {
+                                    println!("Copy to clipboard");
+                                },
                             },
-                                p {
-                                    class: "thumbnail-text thumb-text",
-                                    format!("{}", match file_format {
-                                        FileFormat::Video => get_local_text("files.video-thumb"),
-                                        FileFormat::Image => get_local_text("files.image-thumb"),
-                                        FileFormat::Document => get_local_text("files.doc-thumb"),
-                                        _ => String::from("Thumb"),
-                                    }),
-                                }
+                        },
+                        div {
+                            img {
+                                src: "{thumbnail}",
+                                width: "100%",
+                        },
+                            p {
+                                class: "thumbnail-text thumb-text",
+                                format!("{}", match file_format {
+                                    FileFormat::Video => get_local_text("files.video-thumb"),
+                                    FileFormat::Image => get_local_text("files.image-thumb"),
+                                    FileFormat::Document => get_local_text("files.doc-thumb"),
+                                    _ => String::from("Thumb"),
+                                }),
                             }
                         }
                         }
