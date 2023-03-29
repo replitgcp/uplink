@@ -11,7 +11,7 @@ use futures::{channel::oneshot, StreamExt};
 use humansize::{format_size, DECIMAL};
 use mime::*;
 use once_cell::sync::Lazy;
-use tempfile::TempDir;
+use tempfile::{NamedTempFile, TempDir};
 use tokio::sync::mpsc;
 use tokio_util::io::ReaderStream;
 
@@ -21,6 +21,7 @@ use crate::{warp_runner::Storage as warp_storage, DOC_EXTENSIONS};
 use warp::{
     constellation::{
         directory::Directory,
+        file::File,
         item::{Item, ItemType},
         Progression,
     },
@@ -90,6 +91,11 @@ pub enum ConstellationCmd {
         item: Item,
         rsp: oneshot::Sender<Result<uplink_storage, warp::error::Error>>,
     },
+    #[display(fmt = "GetFileBuffer {{ file: {file:?} }} ")]
+    GetFileBuffer {
+        file: File,
+        rsp: oneshot::Sender<Result<(Vec<u8>, String), warp::error::Error>>,
+    },
 }
 
 pub async fn handle_constellation_cmd(cmd: ConstellationCmd, warp_storage: &mut warp_storage) {
@@ -139,7 +145,34 @@ pub async fn handle_constellation_cmd(cmd: ConstellationCmd, warp_storage: &mut 
             let r = delete_items(warp_storage, item).await;
             let _ = rsp.send(r);
         }
+        ConstellationCmd::GetFileBuffer { file, rsp } => {
+            let r = get_file_buffer(warp_storage, file).await;
+            let _ = rsp.send(r);
+        }
     }
+}
+
+async fn get_file_buffer(
+    warp_storage: &mut warp_storage,
+    file: File,
+) -> Result<(Vec<u8>, String), Error> {
+    let file_buffer = warp_storage.get_buffer(&file.name()).await?;
+
+    // Create a named temporary file.
+    let temp_file = NamedTempFile::new()?;
+
+    // Get the file path of the temporary file.
+    let temp_path = temp_file.path().to_path_buf();
+
+    warp_storage
+        .get(&file.name(), &temp_path.to_string_lossy().to_string())
+        .await?;
+    let file_path = format!(
+        "{}/{}",
+        temp_path.to_string_lossy().to_string(),
+        file.name()
+    );
+    Ok((file_buffer, file_path))
 }
 
 async fn delete_items(

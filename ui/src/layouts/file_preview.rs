@@ -1,24 +1,37 @@
-use std::io::Cursor;
+use std::error::Error;
+use std::fs::OpenOptions;
+use std::io::{Cursor, Read, Write};
+use std::path::PathBuf;
 
-use clipboard::{ClipboardContext, ClipboardProvider};
+use clipboard::{osx_clipboard, ClipboardContext, ClipboardProvider};
 use common::icons::outline::Shape as Icon;
 use common::icons::IconButton;
+use common::warp_runner::{ConstellationCmd, WarpCmd};
+use common::WARP_CMD_CH;
 use common::{
     language::get_local_text, state::State, DOC_EXTENSIONS, IMAGE_EXTENSIONS, STATIC_ARGS,
     VIDEO_FILE_EXTENSIONS,
 };
 use dioxus::prelude::*;
 use dioxus_desktop::{use_window, DesktopContext, LogicalSize};
+use futures::channel::oneshot;
+use futures::StreamExt;
 use image::io::Reader as ImageReader;
 use kit::components::context_menu::{ContextItem, ContextMenu};
 use kit::elements::file::get_file_extension;
 use notify::{Config, RecommendedWatcher, RecursiveMode, Watcher};
 use std::sync::mpsc::channel;
+use tempfile::NamedTempFile;
 use warp::constellation::file::File;
+use warp::logging::tracing::log;
 
 use crate::utils::WindowDropHandler;
 
 const CSS_STYLE: &str = include_str!("./style.scss");
+
+enum ChanCmd {
+    GetFileBuffer(File),
+}
 
 #[derive(Clone, PartialEq, Eq)]
 pub enum FileFormat {
@@ -54,12 +67,14 @@ pub fn get_file_format(file_name: String) -> FileFormat {
 #[allow(non_snake_case)]
 pub fn FilePreview(cx: Scope, file: File, _drop_handler: WindowDropHandler) -> Element {
     let file_format = get_file_format(file.name());
+
     let file_name = file.name();
     let thumbnail = file.thumbnail();
     let has_thumbnail = !file.thumbnail().is_empty();
     let desktop = use_window(cx);
     let mut css_style = update_theme_colors();
     let update_state: &UseRef<Option<()>> = use_ref(cx, || Some(()));
+    let file_buffer_state: &UseState<Vec<u8>> = use_state(cx, || Vec::new());
 
     if update_state.read().is_some() {
         css_style = update_theme_colors();
@@ -110,6 +125,43 @@ pub fn FilePreview(cx: Scope, file: File, _drop_handler: WindowDropHandler) -> E
         }
     });
 
+    let ch = use_coroutine(cx, |mut rx: UnboundedReceiver<ChanCmd>| {
+        to_owned![file_buffer_state];
+        async move {
+            let warp_cmd_tx = WARP_CMD_CH.tx.clone();
+            while let Some(cmd) = rx.next().await {
+                match cmd {
+                    ChanCmd::GetFileBuffer(file) => {
+                        let (tx, rx) =
+                            oneshot::channel::<Result<(Vec<u8>, String), warp::error::Error>>();
+
+                        if let Err(e) = warp_cmd_tx.send(WarpCmd::Constellation(
+                            ConstellationCmd::GetFileBuffer { file, rsp: tx },
+                        )) {
+                            log::error!("failed to run warp command: {}", e);
+                            continue;
+                        }
+
+                        let rsp = rx.await.expect("command canceled");
+
+                        match rsp {
+                            Ok((file_buffer, temp_path)) => {
+                                println!("Arrived here - 1");
+                                let _ = get_file_buffer_to_clipboard(file_buffer, temp_path);
+                                // file_buffer_state.set(file_buffer);
+                                log::info!("New file buffer downloaded");
+                            }
+                            Err(e) => {
+                                log::error!("failed to get file buffer: {}", e);
+                                continue;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    });
+
     cx.render(rsx! (
         style { css_style },
         style { CSS_STYLE },
@@ -122,12 +174,18 @@ pub fn FilePreview(cx: Scope, file: File, _drop_handler: WindowDropHandler) -> E
                 if file_format != FileFormat::Other && has_thumbnail {
                     rsx!{
                         div {
+                            z_index: "1",
+                            position: "absolute",
+                            top: "6%",
                             id: "copy-button",
                             IconButton {
                                 icon: Icon::ClipboardDocument,
                                 onclick: move |_| {
+                                    ch.send(ChanCmd::GetFileBuffer(file.clone()));
+                                    // let _ = get_file_buffer_to_clipboard(file_buffer_state.get().clone());
                                     println!("Copy to clipboard");
                                 },
+                                size: 24,
                             },
                         },
                         div {
@@ -219,4 +277,24 @@ fn update_theme_colors() -> String {
         background_style
     ));
     css_style
+}
+
+fn get_file_buffer_to_clipboard(
+    file_buffer: Vec<u8>,
+    temp_path: String,
+) -> Result<(), Box<dyn Error>> {
+    let mut file =
+        std::fs::File::open("/Users/lucasmarchi/Downloads/Satellite_Team_Presentation.pdf")?;
+
+    let mut file_contents: Vec<u8> = Vec::new();
+
+    file.read_to_end(&mut file_contents)?;
+
+    let mut ctx = osx_clipboard::OSXClipboardContext::new().unwrap();
+
+    let file_string = String::from_utf8(file_contents).unwrap();
+    println!("file_string: {:?}", file_string);
+    ctx.set_contents(file_string).unwrap();
+
+    Ok(())
 }
