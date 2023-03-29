@@ -5,6 +5,7 @@
 use std::{cell::RefCell, rc::Rc};
 
 use dioxus::prelude::*;
+use dioxus_desktop::use_window;
 use dioxus_html::input_data::keyboard_types::{Code, Modifiers};
 
 use crate::elements::tooltip::{ArrowPosition, Tooltip};
@@ -68,6 +69,7 @@ pub fn Input<'a>(cx: Scope<'a, Props<'a>>) -> Element<'a> {
 
     let height_script = include_str!("./update_input_height.js");
     let focus_script = include_str!("./focus.js").replace("UUID", id);
+    use_window(cx).set_focus();
     dioxus_desktop::use_eval(cx)(height_script.to_string());
     dioxus_desktop::use_eval(cx)(focus_script.to_string());
 
