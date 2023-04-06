@@ -8536,13 +8536,14 @@ dependencies = [
 [[package]]
 name = "warp"
 version = "0.1.0"
-source = "git+https://github.com/Satellite-im/Warp?rev=1d2c38dbb870cade93cf05ccdd7f75dfcc948f94#1d2c38dbb870cade93cf05ccdd7f75dfcc948f94"
+source = "git+https://github.com/Satellite-im/Warp?rev=197c1b2d462aec21d6f7388185c68e379c5452f8#197c1b2d462aec21d6f7388185c68e379c5452f8"
 dependencies = [
  "aes-gcm 0.10.1",
  "anyhow",
  "async-broadcast",
  "async-stream",
  "async-trait",
+ "bincode",
  "blake2",
  "bs58",
  "cbindgen",
@@ -8595,7 +8596,7 @@ dependencies = [
 [[package]]
 name = "warp-derive"
 version = "0.1.0"
-source = "git+https://github.com/Satellite-im/Warp?rev=1d2c38dbb870cade93cf05ccdd7f75dfcc948f94#1d2c38dbb870cade93cf05ccdd7f75dfcc948f94"
+source = "git+https://github.com/Satellite-im/Warp?rev=197c1b2d462aec21d6f7388185c68e379c5452f8#197c1b2d462aec21d6f7388185c68e379c5452f8"
 dependencies = [
  "paste",
  "quote",
@@ -8605,7 +8606,7 @@ dependencies = [
 [[package]]
 name = "warp-fs-ipfs"
 version = "0.1.0"
-source = "git+https://github.com/Satellite-im/Warp?rev=1d2c38dbb870cade93cf05ccdd7f75dfcc948f94#1d2c38dbb870cade93cf05ccdd7f75dfcc948f94"
+source = "git+https://github.com/Satellite-im/Warp?rev=197c1b2d462aec21d6f7388185c68e379c5452f8#197c1b2d462aec21d6f7388185c68e379c5452f8"
 dependencies = [
  "anyhow",
  "async-stream",
@@ -8626,7 +8627,7 @@ dependencies = [
 [[package]]
 name = "warp-mp-ipfs"
 version = "0.1.0"
-source = "git+https://github.com/Satellite-im/Warp?rev=1d2c38dbb870cade93cf05ccdd7f75dfcc948f94#1d2c38dbb870cade93cf05ccdd7f75dfcc948f94"
+source = "git+https://github.com/Satellite-im/Warp?rev=197c1b2d462aec21d6f7388185c68e379c5452f8#197c1b2d462aec21d6f7388185c68e379c5452f8"
 dependencies = [
  "anyhow",
  "async-stream",
@@ -8649,13 +8650,15 @@ dependencies = [
 [[package]]
 name = "warp-rg-ipfs"
 version = "0.1.0"
-source = "git+https://github.com/Satellite-im/Warp?rev=1d2c38dbb870cade93cf05ccdd7f75dfcc948f94#1d2c38dbb870cade93cf05ccdd7f75dfcc948f94"
+source = "git+https://github.com/Satellite-im/Warp?rev=197c1b2d462aec21d6f7388185c68e379c5452f8#197c1b2d462aec21d6f7388185c68e379c5452f8"
 dependencies = [
  "anyhow",
  "async-stream",
  "async-trait",
  "bayespam",
+ "bincode",
  "bs58",
+ "bytes",
  "chrono",
  "futures",
  "libipld",
