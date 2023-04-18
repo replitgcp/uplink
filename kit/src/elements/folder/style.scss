@@ -3,6 +3,7 @@
 	height: var(--icon-label-size-vertical);
 	display: inline-flex;
 	align-content: center;
+	height: 40px;
 	align-self: center;
 	cursor: pointer;
 	display: block;
@@ -13,11 +14,10 @@
 .folder {
 	width: 100%;
 	display: inline-flex;
-	flex-direction: column;
+	flex-direction: row;
 	align-content: center;
 	justify-content: center;
 	max-width: 100px;
-	padding-top: 8px;
 	align-self: flex-start;
 	margin: 5px;
 	transition: background-color var(--animation-time) ease;

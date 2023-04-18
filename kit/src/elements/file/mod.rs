@@ -93,6 +93,7 @@ pub fn File<'a>(cx: Scope<'a, Props<'a>>) -> Element<'a> {
                     onclick: move |_| emit_press(&cx),
                     div {
                         position: "relative",
+                        height: "40px",
                         padding_top: "5px",
                         if thumbnail.is_empty() {
                             let file_extension = file_extension.clone().replace('.', "");
