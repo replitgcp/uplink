@@ -81,18 +81,18 @@ pub fn AboutPage(cx: Scope) -> Element {
                     }
                 })
             }
-            DownloadProgress::PickFolder => rsx!(Modal {
-                on_dismiss: move |_| {
-                    download_state.write().stage = DownloadProgress::Idle;
-                },
-                children: cx.render(rsx!(crate::get_download_modal {
+            DownloadProgress::PickFolder => rsx!(
+                crate::components::settings::download_modal::get_download_modal {
+                    on_dismiss: move |_| {
+                        download_state.write().stage = DownloadProgress::Idle;
+                    },
                     on_submit: move |dest: PathBuf| {
                         download_state.write().stage = DownloadProgress::Pending;
                         download_state.write().destination = Some(dest.clone());
                         download_ch.send(SoftwareDownloadCmd(dest));
                     }
-                }))
-            }),
+                }
+            ),
             DownloadProgress::Pending => {
                 rsx!(Button {
                     key: "{pending_key}",

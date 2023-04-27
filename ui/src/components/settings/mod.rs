@@ -3,6 +3,7 @@ use common::icons::Icon as IconElement;
 use dioxus::prelude::*;
 use kit::elements::label::Label;
 
+pub mod download_modal;
 pub mod sidebar;
 pub mod sub_pages;
 #[derive(Props)]
