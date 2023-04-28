@@ -30,8 +30,8 @@ pub fn get_download_modal<'a>(
                 onclick: move |evt| {
                     evt.stop_propagation();
                 },
-                // controlls
                 div {
+                    class: "controlls",
                     Button {
                         onpress: move |_| {
                             on_dismiss.call(());
@@ -40,7 +40,7 @@ pub fn get_download_modal<'a>(
                     },
                 },
                 div {
-                    class: "",
+                    class: "content",
                     div {
                         class: "",
                         Button {
