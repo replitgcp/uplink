@@ -16,22 +16,32 @@ pub fn Modal<'a>(cx: Scope<'a, Props<'a>>) -> Element<'a> {
             class: "modal-wrapper",
             onclick: move |_| cx.props.on_dismiss.call(()),
             div {
-                class: "modal flex col",
+                class: "modal",
                 onclick: move |evt| {
                     evt.stop_propagation();
                 },
                 div {
-                    class: "controls flex row",
-                    Button {
-                        onpress: move |_| {
-                            cx.props.on_dismiss.call(());
+                    class: "modal-content",
+                    div {
+                        class: "modal-head",
+                        Button {
+                            onpress: move |_| {
+                                cx.props.on_dismiss.call(());
+                            },
+                            icon: Shape::XMark
                         },
-                        icon: Shape::XMark
                     },
+                    div {
+                        class: "model-body",
+                        rsx!(cx.props.children.as_ref()),
                 },
-                rsx!(cx.props.children.as_ref())
 
-            }
+
+            },
+
+
+
         }
+    }
     ))
 }

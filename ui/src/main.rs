@@ -982,18 +982,41 @@ pub fn get_download_modal<'a>(cx: Scope<'a>, on_submit: EventHandler<'a, PathBuf
 
     cx.render(rsx!(div {
         class: "download-modal flex col",
-        div {
-            class: "flex row",
-            Button {
-                text: "pick location to download installer ".into(),
-                onpress: move |_| {
-                    let dest = get_download_dest();
-                    download_location.set(dest);
+        h1 {
+            "Uplink has an update available. Follow these steps to download and install the latest update."
+        },
+        ul {
+            class: "instruction-list",
+            li {
+                "1. Download the update."
+            },
+            li {
+                div {
+                    class: "download-button",
+                    Button {
+                        text: "Pick Download Folder".into(),
+                        onpress: move |_| {
+                            let dest = get_download_dest();
+                            download_location.set(dest);
+                        },
+                    } ,
+                    p {
+                        disp_download_location
+                    }
                 },
-            } ,
-            p {
-                disp_download_location
+            },
+            li {
+                "2. Close uplink."
+            },
+            li {
+                "3. Run the installer. The older version of uplink will be overwritten, leaving your account intact."
+            },
+            li {
+                "4. Open uplink and start chatting again!"
             }
+        },
+        p {
+            "*We are going to streamline this process in a future update."
         },
         dl.as_ref().clone().map(|dest| rsx!(
             Button {

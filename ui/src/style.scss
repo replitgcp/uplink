@@ -39,13 +39,13 @@ body {
   cursor: pointer;
   min-height: 1.6rem;
   .btn-wrap {
-    height: var(--titlebar-height);
-    width: var(--titlebar-height);
+    // height: var(--titlebar-height);
+    // width: var(--titlebar-height);
     padding: unset;
     .btn {
       font-size: var(--text-size-less);
       height: 100%;
-      opacity: 0.5;
+      // opacity: 0.5;
     }
   }
 }
@@ -176,3 +176,23 @@ body {
     flex-direction: column;
   }
 }
+
+.instruction-list {
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+.download-modal {
+  color: var(--text-color-bright);
+  li {
+    padding: 5px;
+  }
+}
+
+.download-button .btn-wrap {
+  height: 45px;
+  .btn {
+    font-size: 16px;
+  }
+}
+
