@@ -108,6 +108,11 @@
       margin-right: calc(var(--gap) * -1);
     }
   }
+  
+  .logout-button{
+    align-self: flex-end;
+    padding-right: 10px;
+  }
 
 
   .profile-avatar {

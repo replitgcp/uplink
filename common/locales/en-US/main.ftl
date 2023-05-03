@@ -27,6 +27,7 @@ uplink = Uplink
     .reached = reached
     .delete = Delete
     .dismiss = Dismiss
+    .logout = Logout
     .pick-download-directory = Choose a location to download the update
     .update-available = Update available
     .update-downloading = Downloading update

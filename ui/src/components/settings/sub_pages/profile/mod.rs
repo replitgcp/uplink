@@ -260,12 +260,24 @@ pub fn ProfileSettings(cx: Scope) -> Element {
                                set_profile_picture(ch.clone());
                             }
                         },
+                        
                     },
                 },
             },
             div{
                 class: "profile-content",
                 aria_label: "profile-content",
+                div {
+                    class:"logout-button ",
+                    Button {
+                        text: get_local_text("uplink.dismiss"),
+                        appearance: Appearance::SecondaryLess,
+                        onpress: move |_| {
+                            state.write().ui.settings_welcome();
+                            let _ = state.write().save();
+                        }
+                    },
+                }
                 div {
                     class: "content-item",
                     Label {
