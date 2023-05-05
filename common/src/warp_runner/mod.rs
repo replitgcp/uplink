@@ -101,6 +101,13 @@ impl WarpRunner {
         }
     }
 
+    pub fn getself() -> Self {
+        Self {
+            notify: Arc::new(Notify::new()),
+            ran_once: false,
+        }
+    }
+
     // spawns a task which will terminate when WarpRunner is dropped
     pub fn run(&mut self) {
         assert!(!self.ran_once, "WarpRunner called run() multiple times");
@@ -110,6 +117,11 @@ impl WarpRunner {
         tokio::spawn(async move {
             handle_login(notify.clone()).await;
         });
+    }
+
+    pub fn stop(&mut self) {
+        println!("here");
+        drop(self);
     }
 }
 

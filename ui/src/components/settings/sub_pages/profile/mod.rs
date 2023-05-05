@@ -1,8 +1,8 @@
 use arboard::Clipboard;
-use common::get_images_dir;
+use common::{get_images_dir, warp_runner};
 use common::language::get_local_text;
 use common::state::{Action, State, ToastNotification};
-use common::warp_runner::{MultiPassCmd, WarpCmd};
+use common::warp_runner::{MultiPassCmd, WarpCmd, WarpRunner};
 use common::{icons::outline::Shape as Icon, WARP_CMD_CH};
 use dioxus::prelude::*;
 use futures::channel::oneshot;
@@ -270,11 +270,12 @@ pub fn ProfileSettings(cx: Scope) -> Element {
                 div {
                     class:"logout-button ",
                     Button {
-                        text: get_local_text("uplink.dismiss"),
+                        text: get_local_text("uplink.logout"),
                         appearance: Appearance::SecondaryLess,
                         onpress: move |_| {
-                            state.write().ui.settings_welcome();
-                            let _ = state.write().save();
+                            state.write().clear();
+                            let warp_runner = WarpRunner;
+                            warp_runner.write_silent().stop();
                         }
                     },
                 }
