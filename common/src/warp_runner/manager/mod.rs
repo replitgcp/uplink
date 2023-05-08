@@ -3,8 +3,7 @@
 pub mod commands;
 mod events;
 use futures::StreamExt;
-use std::sync::Arc;
-use tokio::sync::Notify;
+
 use warp::{
     logging::tracing::log, multipass::MultiPassEventStream, raygun::RayGunEventStream,
     tesseract::Tesseract,
