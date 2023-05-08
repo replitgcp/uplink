@@ -345,6 +345,7 @@ fn auth_wrapper(cx: Scope, pin: UseRef<String>) -> Element {
                 class: "titlebar disable-select",
                 id: if cfg!(target_os = "macos") {""}  else {"lockscreen-controls"},
                 onmousedown: move |_| { desktop.drag(); },
+                // todo: use a different Element for controls here.
                 Topbar_Controls {},
             },
             match *auth_state.read() {
