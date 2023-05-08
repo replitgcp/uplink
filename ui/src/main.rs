@@ -279,13 +279,13 @@ fn bootstrap(cx: Scope) -> Element {
     use_shared_state_provider(cx, || AuthPages::Unlock);
     // warp_runner must be started from within a tokio reactor
     // store in a use_ref to make it not get dropped
-    let warp_runner = use_ref(cx, warp_runner::WarpRunner::new);
+    let warp_runner = use_ref(cx, || {
+        let mut runner = warp_runner::WarpRunner::new();
+        runner.run();
+        runner
+    });
     let auth_state = use_shared_state::<AuthPages>(cx)?;
     let pin = use_ref(cx, String::new);
-
-    if !warp_runner.read().is_running() {
-        warp_runner.write_silent().run();
-    }
 
     // make the window smaller while the user authenticates
     let desktop = use_window(cx);
@@ -298,6 +298,7 @@ fn bootstrap(cx: Scope) -> Element {
         AuthPages::Restart => {
             pin.write().clear();
             warp_runner.write_silent().reset();
+            warp_runner.write_silent().run();
             *auth_state.write() = AuthPages::Unlock;
             None
         }
