@@ -23,7 +23,7 @@ pub struct Warp {
     pub constellation: Storage,
 }
 
-pub async fn run(mut warp: Warp, notify: Arc<Notify>) {
+pub async fn run(mut warp: Warp) {
     // receive command from Uplink
     let warp_cmd_rx = WARP_CMD_CH.rx.clone();
 
@@ -61,8 +61,6 @@ pub async fn run(mut warp: Warp, notify: Arc<Notify>) {
                     break;
                 }
             } ,
-            // the WarpRunner has been dropped. stop the task
-            _ = notify.notified() => break,
         }
     }
 
