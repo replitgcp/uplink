@@ -23,8 +23,9 @@ pub const MAX_USERNAME_LEN: i32 = 32;
 
 #[inline_props]
 #[allow(non_snake_case)]
-pub fn CreateAccountLayout(cx: Scope, page: UseState<AuthPages>, pin: UseRef<String>) -> Element {
+pub fn CreateAccountLayout(cx: Scope, pin: UseRef<String>) -> Element {
     log::trace!("rendering create account layout");
+    let auth_state = use_shared_state::<AuthPages>(cx)?;
     let username = use_state(cx, String::new);
     //let error = use_state(cx, String::new);
     let button_disabled = use_state(cx, || true);
@@ -46,7 +47,7 @@ pub fn CreateAccountLayout(cx: Scope, page: UseState<AuthPages>, pin: UseRef<Str
     };
 
     let ch = use_coroutine(cx, |mut rx: UnboundedReceiver<(String, String)>| {
-        to_owned![page];
+        to_owned![auth_state];
         async move {
             let config = Configuration::load_or_default();
             let warp_cmd_tx = WARP_CMD_CH.tx.clone();
@@ -71,7 +72,7 @@ pub fn CreateAccountLayout(cx: Scope, page: UseState<AuthPages>, pin: UseRef<Str
                             sounds::Play(sounds::Sounds::On);
                         }
 
-                        page.set(AuthPages::Success(ident));
+                        *auth_state.write() = AuthPages::Success(ident);
                     }
                     // todo: notify user
                     Err(e) => log::error!("create identity failed: {}", e),

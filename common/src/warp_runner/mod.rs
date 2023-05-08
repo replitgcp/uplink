@@ -1,9 +1,12 @@
 //! Defines important types and structs, and spawns the main task for warp_runner - manager::run.
 use derive_more::Display;
 use std::sync::Arc;
-use tokio::sync::{
-    mpsc::{UnboundedReceiver, UnboundedSender},
-    Mutex, Notify,
+use tokio::{
+    sync::{
+        mpsc::{UnboundedReceiver, UnboundedSender},
+        Mutex, Notify,
+    },
+    task::JoinHandle,
 };
 use warp::{
     constellation::Constellation,
@@ -76,14 +79,14 @@ pub enum WarpCmd {
 
 /// Spawns a task which manages multiple streams, channels, and tasks related to warp
 pub struct WarpRunner {
-    // perhaps collecting a JoinHandle and calling abort() would be better than using Notify.
-    notify: Arc<Notify>,
-    ran_once: bool,
+    handle: Option<JoinHandle<()>>,
 }
 
 impl std::ops::Drop for WarpRunner {
     fn drop(&mut self) {
-        self.notify.notify_waiters();
+        if let Some(handle) = self.handle.take() {
+            handle.abort();
+        }
     }
 }
 
@@ -95,26 +98,37 @@ impl Default for WarpRunner {
 
 impl WarpRunner {
     pub fn new() -> Self {
-        Self {
-            notify: Arc::new(Notify::new()),
-            ran_once: false,
+        Self { handle: None }
+    }
+
+    pub fn reset(&mut self) {
+        if let Some(handle) = self.handle.take() {
+            handle.abort();
         }
+    }
+
+    pub fn is_running(&self) -> bool {
+        self.handle
+            .as_ref()
+            .map(|h| !h.is_finished())
+            .unwrap_or(false)
     }
 
     // spawns a task which will terminate when WarpRunner is dropped
     pub fn run(&mut self) {
-        assert!(!self.ran_once, "WarpRunner called run() multiple times");
-        self.ran_once = true;
+        assert!(
+            !self.handle.is_none(),
+            "WarpRunner called run() multiple times"
+        );
 
-        let notify = self.notify.clone();
-        tokio::spawn(async move {
-            handle_login(notify.clone()).await;
-        });
+        self.handle = Some(tokio::spawn(async move {
+            handle_login().await;
+        }));
     }
 }
 
 // handle_login calls manager::run, which continues to process warp commands
-async fn handle_login(notify: Arc<Notify>) {
+async fn handle_login() {
     let warp_cmd_rx = WARP_CMD_CH.rx.clone();
     // be sure to drop this channel before calling manager::run()
     let mut warp_cmd_rx = warp_cmd_rx.lock().await;
@@ -167,7 +181,7 @@ async fn handle_login(notify: Arc<Notify>) {
                             continue;
                         };
                         match warp.multipass.create_identity(Some(&username), None).await {
-                            Ok(_id) =>  match wait_for_multipass(&mut warp, notify.clone()).await {
+                            Ok(_id) =>  match wait_for_multipass(&mut warp).await {
                                 Ok(ident) => match save_tesseract(&warp.tesseract) {
                                     Ok(_) => {
                                         let _ = rsp.send(Ok(ident));
@@ -196,7 +210,7 @@ async fn handle_login(notify: Arc<Notify>) {
                             let _ = rsp.send(Err(e));
                             continue;
                         };
-                        match wait_for_multipass(&mut warp, notify.clone()).await {
+                        match wait_for_multipass(&mut warp).await {
                             Ok(ident) => {
                                 let _ = rsp.send(Ok(ident));
                                 break Some(warp);
@@ -214,8 +228,6 @@ async fn handle_login(notify: Arc<Notify>) {
                     _ => {}
                 }
             },
-            // the WarpRunner has been dropped. stop the task
-            _ = notify.notified() => break None,
         }
     };
 
@@ -223,7 +235,7 @@ async fn handle_login(notify: Arc<Notify>) {
     drop(warp_cmd_rx);
 
     if let Some(warp) = warp {
-        manager::run(warp, notify).await;
+        manager::run(warp).await;
     } else {
         log::info!("warp_runner terminated during initialization");
     }
@@ -231,32 +243,21 @@ async fn handle_login(notify: Arc<Notify>) {
 
 async fn wait_for_multipass(
     warp: &mut manager::Warp,
-    notify: Arc<Notify>,
 ) -> Result<multipass::identity::Identity, Error> {
-    let multipass_init_done = async {
-        loop {
-            match warp.multipass.get_own_identity().await {
-                Ok(ident) => return Ok(ident),
-                Err(e) => match e {
-                    Error::MultiPassExtensionUnavailable => {
-                        tokio::time::sleep(std::time::Duration::from_millis(100)).await;
-                        continue;
-                    }
-                    _ => {
-                        log::error!("multipass.get_own_identity failed: {}", e);
-                        return Err(e);
-                    }
-                },
-            }
+    loop {
+        match warp.multipass.get_own_identity().await {
+            Ok(ident) => return Ok(ident),
+            Err(e) => match e {
+                Error::MultiPassExtensionUnavailable => {
+                    tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+                    continue;
+                }
+                _ => {
+                    log::error!("multipass.get_own_identity failed: {}", e);
+                    return Err(e);
+                }
+            },
         }
-    };
-
-    tokio::select! {
-        r = multipass_init_done => r,
-        _ = notify.notified() => {
-            log::error!("notified interrupted multipass initialization");
-            Err(Error::Other)
-        },
     }
 }
 

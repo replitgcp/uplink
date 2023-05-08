@@ -112,8 +112,9 @@ pub static UPLINK_ROUTES: UplinkRoutes = UplinkRoutes {
 
 // serve as a sort of router while the user logs in]
 #[allow(clippy::large_enum_variant)]
-#[derive(PartialEq, Eq)]
+#[derive(PartialEq, Eq, Clone)]
 pub enum AuthPages {
+    Restart,
     Unlock,
     CreateAccount,
     Success(multipass::identity::Identity),
@@ -295,11 +296,16 @@ pub fn get_window_builder(with_predefined_size: bool, with_menu: bool) -> Window
 // start warp_runner and ensure the user is logged in
 fn bootstrap(cx: Scope) -> Element {
     log::trace!("rendering bootstrap");
-
+    use_shared_state_provider(cx, || AuthPages::Unlock);
     // warp_runner must be started from within a tokio reactor
     // store in a use_ref to make it not get dropped
     let warp_runner = use_ref(cx, warp_runner::WarpRunner::new);
-    warp_runner.write_silent().run();
+    let auth_state = use_shared_state::<AuthPages>(cx)?;
+    let pin = use_ref(cx, String::new);
+
+    if !warp_runner.read().is_running() {
+        warp_runner.write_silent().run();
+    }
 
     // make the window smaller while the user authenticates
     let desktop = use_window(cx);
@@ -308,31 +314,27 @@ fn bootstrap(cx: Scope) -> Element {
         height: 350.0,
     });
 
-    cx.render(rsx!(crate::auth_page_manager {}))
-}
-
-// Uplink's Router depends on State, which can't be loaded until the user logs in.
-// don't see a way to replace the router
-// so instead use a Prop to determine which page to render
-// after the user logs in, app_bootstrap loads Uplink as normal.
-fn auth_page_manager(cx: Scope) -> Element {
-    let page = use_state(cx, || AuthPages::Unlock);
-    let pin = use_ref(cx, String::new);
-    cx.render(rsx!(match &*page.current() {
-        AuthPages::Success(ident) => rsx!(app_bootstrap {
-            identity: ident.clone()
-        }),
-        _ => rsx!(auth_wrapper {
-            page: page.clone(),
-            pin: pin.clone()
-        }),
-    }))
+    match auth_state.read().clone() {
+        AuthPages::Restart => {
+            pin.write().clear();
+            warp_runner.write_silent().reset();
+            *auth_state.write() = AuthPages::Unlock;
+            None
+        }
+        AuthPages::Unlock | AuthPages::CreateAccount => {
+            cx.render(rsx!(auth_wrapper { pin: pin.clone() }))
+        }
+        AuthPages::Success(identity) => cx.render(rsx!(app_bootstrap {
+            identity: identity.clone()
+        })),
+    }
 }
 
 #[allow(unused_assignments)]
 #[inline_props]
-fn auth_wrapper(cx: Scope, page: UseState<AuthPages>, pin: UseRef<String>) -> Element {
+fn auth_wrapper(cx: Scope, pin: UseRef<String>) -> Element {
     log::trace!("rendering auth wrapper");
+    let auth_state = use_shared_state::<AuthPages>(cx)?;
     let desktop = use_window(cx);
     let theme = "";
 
@@ -346,9 +348,9 @@ fn auth_wrapper(cx: Scope, page: UseState<AuthPages>, pin: UseRef<String>) -> El
                 onmousedown: move |_| { desktop.drag(); },
                 Topbar_Controls {},
             },
-            match *page.current() {
-                AuthPages::Unlock => rsx!(UnlockLayout { page: page.clone(), pin: pin.clone() }),
-                AuthPages::CreateAccount => rsx!(CreateAccountLayout { page: page.clone(), pin: pin.clone() }),
+            match *auth_state.read() {
+                AuthPages::Unlock => rsx!(UnlockLayout { pin: pin.clone() }),
+                AuthPages::CreateAccount => rsx!(CreateAccountLayout { pin: pin.clone() }),
                 _ => panic!("invalid page")
             }
         }

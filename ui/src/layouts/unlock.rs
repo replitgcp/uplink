@@ -43,8 +43,9 @@ impl UnlockError {
 // todo: go to the auth page if no account has been created
 #[inline_props]
 #[allow(non_snake_case)]
-pub fn UnlockLayout(cx: Scope, page: UseState<AuthPages>, pin: UseRef<String>) -> Element {
+pub fn UnlockLayout(cx: Scope, pin: UseRef<String>) -> Element {
     log::trace!("rendering unlock layout");
+    let auth_state = use_shared_state::<AuthPages>(cx)?;
     let validation_failure: &UseState<Option<UnlockError>> =
         use_state(cx, || Some(UnlockError::ValidationError)); // By default no pin is an invalid pin.
 
@@ -80,7 +81,7 @@ pub fn UnlockLayout(cx: Scope, page: UseState<AuthPages>, pin: UseRef<String>) -
     });
 
     let ch = use_coroutine(cx, |mut rx| {
-        to_owned![error, page, cmd_in_progress];
+        to_owned![error, auth_state, cmd_in_progress];
         async move {
             let config = Configuration::load_or_default();
             let warp_cmd_tx = WARP_CMD_CH.tx.clone();
@@ -105,7 +106,7 @@ pub fn UnlockLayout(cx: Scope, page: UseState<AuthPages>, pin: UseRef<String>) -
                             sounds::Play(sounds::Sounds::On);
                         }
 
-                        page.set(AuthPages::Success(ident))
+                        *auth_state.write() = AuthPages::Success(ident);
                     }
                     Err(err) => match err {
                         warp::error::Error::DecryptionError => {
@@ -218,7 +219,7 @@ pub fn UnlockLayout(cx: Scope, page: UseState<AuthPages>, pin: UseRef<String>) -
                                 } else if let Some(e) = error.get() {
                                     shown_error.set(e.translation());
                                 } else {
-                                    page.set(AuthPages::CreateAccount);
+                                    *auth_state.write() = AuthPages::CreateAccount;
                                 }
                             }
                         }
@@ -250,7 +251,7 @@ pub fn UnlockLayout(cx: Scope, page: UseState<AuthPages>, pin: UseRef<String>) -
                                 } else if let Some(e) = error.get() {
                                     shown_error.set(e.translation());
                                 } else {
-                                    page.set(AuthPages::CreateAccount);
+                                    *auth_state.write() = AuthPages::CreateAccount;
                                 }
                             }
                         }
