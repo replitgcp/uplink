@@ -4,7 +4,7 @@ use std::sync::Arc;
 use tokio::{
     sync::{
         mpsc::{UnboundedReceiver, UnboundedSender},
-        Mutex, Notify,
+        Mutex,
     },
     task::JoinHandle,
 };
@@ -117,7 +117,7 @@ impl WarpRunner {
     // spawns a task which will terminate when WarpRunner is dropped
     pub fn run(&mut self) {
         assert!(
-            !self.handle.is_none(),
+            self.handle.is_some(),
             "WarpRunner called run() multiple times"
         );
 

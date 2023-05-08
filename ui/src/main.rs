@@ -304,9 +304,7 @@ fn bootstrap(cx: Scope) -> Element {
         AuthPages::Unlock | AuthPages::CreateAccount => {
             cx.render(rsx!(auth_wrapper { pin: pin.clone() }))
         }
-        AuthPages::Success(identity) => cx.render(rsx!(app_bootstrap {
-            identity: identity.clone()
-        })),
+        AuthPages::Success(identity) => cx.render(rsx!(app_bootstrap { identity: identity })),
     }
 }
 
