@@ -107,17 +107,21 @@ impl WarpRunner {
         }
     }
 
-    pub fn is_running(&self) -> bool {
+    pub fn is_stopped(&self) -> bool {
         self.handle
             .as_ref()
-            .map(|h| !h.is_finished())
-            .unwrap_or(false)
+            .map(|h| h.is_finished())
+            .unwrap_or(true)
+    }
+
+    pub fn is_running(&self) -> bool {
+        !self.is_stopped()
     }
 
     // spawns a task which will terminate when WarpRunner is dropped
     pub fn run(&mut self) {
         assert!(
-            self.handle.is_some(),
+            self.handle.is_none(),
             "WarpRunner called run() multiple times"
         );
 
