@@ -1,8 +1,9 @@
 use arboard::Clipboard;
-use common::{get_images_dir, warp_runner};
+use crate::AuthPages;
+use common::{get_images_dir};
 use common::language::get_local_text;
 use common::state::{Action, State, ToastNotification};
-use common::warp_runner::{MultiPassCmd, WarpCmd, WarpRunner};
+use common::warp_runner::{MultiPassCmd, WarpCmd, };
 use common::{icons::outline::Shape as Icon, WARP_CMD_CH};
 use dioxus::prelude::*;
 use futures::channel::oneshot;
@@ -28,11 +29,18 @@ enum ChanCmd {
     Status(String),
 }
 
+// pub enum AuthPages {
+//     Restart,
+// }
+
 #[allow(non_snake_case)]
 pub fn ProfileSettings(cx: Scope) -> Element {
     log::trace!("rendering ProfileSettings");
 
     let state = use_shared_state::<State>(cx)?;
+
+    use_shared_state_provider(cx, || AuthPages::Restart);
+    let auth_state = use_shared_state::<AuthPages>(cx)?;
     let user_status = state.read().status_message().unwrap_or_default();
     let username = state.read().username();
     let should_update: &UseState<Option<multipass::identity::Identity>> = use_state(cx, || None);
@@ -149,6 +157,9 @@ pub fn ProfileSettings(cx: Scope) -> Element {
         // if you need special chars, select action to allow or block and pass a vec! with each char necessary, mainly if alpha_numeric_only is true
         special_chars: None,
     };
+
+    let auth_state = use_shared_state::<AuthPages>(cx);
+    let auth_logout = auth_state.clone().unwrap();
 
     let did_string = state.read().get_own_identity().did_key().to_string();
 
@@ -273,7 +284,8 @@ pub fn ProfileSettings(cx: Scope) -> Element {
                         text: get_local_text("uplink.logout"),
                         appearance: Appearance::SecondaryLess,
                         onpress: move |_| {
-                            state.write().clear();
+                            println!("hfghgfhjgfhgfv");
+                            *auth_logout.write() = AuthPages::Restart;
                         }
                     },
                 }
