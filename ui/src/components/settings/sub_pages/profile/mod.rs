@@ -284,7 +284,6 @@ pub fn ProfileSettings(cx: Scope) -> Element {
                         text: get_local_text("uplink.logout"),
                         appearance: Appearance::SecondaryLess,
                         onpress: move |_| {
-                            println!("hfghgfhjgfhgfv");
                             *auth_logout.write() = AuthPages::Restart;
                         }
                     },
