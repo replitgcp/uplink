@@ -118,11 +118,6 @@ impl WarpRunner {
             handle_login(notify.clone()).await;
         });
     }
-
-    pub fn stop(&mut self) {
-        println!("here");
-        drop(self);
-    }
 }
 
 // handle_login calls manager::run, which continues to process warp commands

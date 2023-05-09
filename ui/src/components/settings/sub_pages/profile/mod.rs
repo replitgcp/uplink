@@ -274,8 +274,6 @@ pub fn ProfileSettings(cx: Scope) -> Element {
                         appearance: Appearance::SecondaryLess,
                         onpress: move |_| {
                             state.write().clear();
-                            let warp_runner = WarpRunner;
-                            warp_runner.write_silent().stop();
                         }
                     },
                 }
