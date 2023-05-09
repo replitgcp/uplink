@@ -38,9 +38,6 @@ pub fn ProfileSettings(cx: Scope) -> Element {
     log::trace!("rendering ProfileSettings");
 
     let state = use_shared_state::<State>(cx)?;
-
-    use_shared_state_provider(cx, || AuthPages::Restart);
-    let auth_state = use_shared_state::<AuthPages>(cx)?;
     let user_status = state.read().status_message().unwrap_or_default();
     let username = state.read().username();
     let should_update: &UseState<Option<multipass::identity::Identity>> = use_state(cx, || None);
@@ -159,7 +156,7 @@ pub fn ProfileSettings(cx: Scope) -> Element {
     };
 
     let auth_state = use_shared_state::<AuthPages>(cx);
-    let auth_logout = auth_state.clone().unwrap();
+    let auth_logout = auth_state.unwrap();
 
     let did_string = state.read().get_own_identity().did_key().to_string();
 

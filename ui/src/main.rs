@@ -296,6 +296,7 @@ fn bootstrap(cx: Scope) -> Element {
 
     match auth_state.read().clone() {
         AuthPages::Restart => {
+            println!("helooo");
             pin.write().clear();
             warp_runner.write_silent().reset();
             warp_runner.write_silent().run();
