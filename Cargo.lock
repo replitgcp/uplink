@@ -4137,6 +4137,7 @@ dependencies = [
 name = "kit"
 version = "0.0.1"
 dependencies = [
+ "base64 0.20.0",
  "chrono",
  "common",
  "derive_more",

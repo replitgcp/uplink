@@ -6,7 +6,7 @@ use dioxus::prelude::*;
 use linkify::{LinkFinder, LinkKind};
 use warp::{constellation::file::File, logging::tracing::log};
 
-use crate::{components::file_embed::FileEmbed, elements::textarea};
+use crate::{components::{file_embed::FileEmbed, message_reply::thumbnail_to_base64}, elements::textarea};
 
 use super::link_embed::EmbedLinks;
 
@@ -104,7 +104,7 @@ pub fn Message<'a>(cx: Scope<'a, Props<'a>>) -> Element<'a> {
                 key: "{key}",
                 filename: file.name(),
                 filesize: file.size(),
-                thumbnail: file.thumbnail(),
+                thumbnail: thumbnail_to_base64(file),
                 big: true,
                 remote: is_remote,
                 download_pending: cx

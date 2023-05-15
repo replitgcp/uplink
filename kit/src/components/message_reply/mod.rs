@@ -1,7 +1,10 @@
 use derive_more::Display;
 use dioxus::prelude::*;
 
-use warp::{constellation::file::File, crypto::DID};
+use warp::{
+    constellation::file::{File, FileType},
+    crypto::DID,
+};
 
 use crate::components::file_embed::FileEmbed;
 
@@ -63,7 +66,7 @@ pub fn MessageReply<'a>(cx: Scope<'a, Props<'a>>) -> Element<'a> {
                 key: "{key}",
                 filename: file.name(),
                 filesize: file.size(),
-                thumbnail: file.thumbnail(),
+                thumbnail: thumbnail_to_base64(file),
                 with_download_button: false,
                 remote: remote,
                 on_press: move |_| {},
@@ -118,4 +121,18 @@ pub fn MessageReply<'a>(cx: Scope<'a, Props<'a>>) -> Element<'a> {
             )),
         }
     ))
+}
+
+pub fn thumbnail_to_base64(file: &File) -> String {
+    let ty = file.file_type();
+
+    let mime = match ty {
+        FileType::Mime(mime) => mime.to_string(),
+        FileType::Generic => "application/octet-stream".into(),
+    };
+
+    let prefix = format!("data:{mime};base64,");
+    let base64_image = base64::encode(file.thumbnail());
+
+    prefix + &base64_image
 }

@@ -2,7 +2,7 @@ use dioxus::prelude::*;
 use warp::constellation::file::File;
 
 use crate::{
-    components::file_embed::FileEmbed,
+    components::{file_embed::FileEmbed, message_reply::thumbnail_to_base64},
     elements::{button::Button, label::Label, textarea, Appearance},
 };
 
@@ -68,7 +68,7 @@ pub fn Reply<'a>(cx: Scope<'a, ReplyProps<'a>>) -> Element<'a> {
                 key: "{key}",
                 filename: file.name(),
                 filesize: file.size(),
-                thumbnail: file.thumbnail(),
+                thumbnail: thumbnail_to_base64(file),
                 with_download_button: false,
                 remote: remote,
                 on_press: move |_| {},
