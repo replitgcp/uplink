@@ -4,6 +4,8 @@ use dioxus::prelude::*;
 use kit::components::context_menu::{ContextItem, ContextMenu};
 use warp::constellation::file::File;
 
+use super::storage::functions::thumbnail_to_base64;
+
 #[derive(Props)]
 pub struct Props<'a> {
     file: &'a File,
@@ -12,7 +14,7 @@ pub struct Props<'a> {
 
 #[allow(non_snake_case)]
 pub fn FilePreview<'a>(cx: Scope<'a, Props<'a>>) -> Element<'a> {
-    let thumbnail = cx.props.file.thumbnail();
+    let thumbnail = thumbnail_to_base64(cx.props.file);
 
     cx.render(rsx!(rsx!(div {
         ContextMenu {

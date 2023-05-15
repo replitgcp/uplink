@@ -473,7 +473,7 @@ async fn upload_files(
                 }
 
                 let video_formats = VIDEO_FILE_EXTENSIONS.to_vec();
-                let image_formats = IMAGE_EXTENSIONS.to_vec();
+                let _image_formats = IMAGE_EXTENSIONS.to_vec();
                 let doc_formats = DOC_EXTENSIONS.to_vec();
 
                 let file_extension = std::path::Path::new(&filename)
@@ -482,22 +482,22 @@ async fn upload_files(
                     .map(|s| format!(".{s}"))
                     .unwrap_or_default();
 
-                if image_formats.iter().any(|f| f == &file_extension) {
-                    match set_thumbnail_if_file_is_image(warp_storage, filename.clone()).await {
-                        Ok(_) => {
-                            log::info!("Image Thumbnail uploaded");
-                            let _ = tx.send(FileTransferProgress::Step(
-                                FileTransferStep::Thumbnail(Some(())),
-                            ));
-                        }
-                        Err(error) => {
-                            log::error!("Not possible to update thumbnail for image: {:?}", error);
-                            let _ = tx.send(FileTransferProgress::Step(
-                                FileTransferStep::Thumbnail(None),
-                            ));
-                        }
-                    };
-                }
+                // if image_formats.iter().any(|f| f == &file_extension) {
+                //     match set_thumbnail_if_file_is_image(warp_storage, filename.clone()).await {
+                //         Ok(_) => {
+                //             log::info!("Image Thumbnail uploaded");
+                //             let _ = tx.send(FileTransferProgress::Step(
+                //                 FileTransferStep::Thumbnail(Some(())),
+                //             ));
+                //         }
+                //         Err(error) => {
+                //             log::error!("Not possible to update thumbnail for image: {:?}", error);
+                //             let _ = tx.send(FileTransferProgress::Step(
+                //                 FileTransferStep::Thumbnail(None),
+                //             ));
+                //         }
+                //     };
+                // }
 
                 if video_formats.iter().any(|f| f == &file_extension) {
                     match set_thumbnail_if_file_is_video(
@@ -643,7 +643,7 @@ async fn set_thumbnail_if_file_is_video(
             let prefix = format!("data:{};base64,", IMAGE_JPEG);
             let base64_image = base64::encode(image);
             let img = prefix + base64_image.as_str();
-            item.set_thumbnail(&img);
+            item.set_thumbnail(img.as_bytes());
             Ok(())
         } else {
             log::warn!("Failed to save thumbnail from a video file");
@@ -701,7 +701,7 @@ async fn set_thumbnail_if_file_is_document(
             let prefix = format!("data:{};base64,", IMAGE_JPEG);
             let base64_image = base64::encode(image);
             let img = prefix + base64_image.as_str();
-            item.set_thumbnail(&img);
+            item.set_thumbnail(&img.as_bytes());
             Ok(())
         } else {
             log::warn!("Failed to save thumbnail from a document file");
@@ -748,7 +748,7 @@ async fn set_thumbnail_if_file_is_image(
         let prefix = format!("data:{mime};base64,");
         let base64_image = base64::encode(&file);
         let img = prefix + base64_image.as_str();
-        item.set_thumbnail(&img);
+        item.set_thumbnail(img.as_bytes());
         Ok(())
     } else {
         log::warn!("thumbnail file is empty");

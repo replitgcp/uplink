@@ -37,6 +37,7 @@ pub mod controller;
 pub mod functions;
 use crate::components::chat::{sidebar::Sidebar as ChatSidebar, RouteInfo};
 use crate::layouts::file_preview::FilePreview;
+use crate::layouts::storage::functions::thumbnail_to_base64;
 
 use self::controller::StorageController;
 
@@ -143,7 +144,8 @@ pub fn FilesLayout(cx: Scope<Props>) -> Element {
                     let file_name = file2.clone().name();
                     download_file(&file_name, ch);
                 }
-                file: file.clone()})
+                file: file.clone()
+            })
         }
         div {
             id: "files-layout",
@@ -409,7 +411,7 @@ pub fn FilesLayout(cx: Scope<Props>) -> Element {
                                         )),
                                         File {
                                             key: "{key}-file",
-                                            thumbnail: file.thumbnail(),
+                                            thumbnail: thumbnail_to_base64(file),
                                             text: file.name(),
                                             aria_label: file.name(),
                                             with_rename: *is_renaming_map.read() == Some(key),

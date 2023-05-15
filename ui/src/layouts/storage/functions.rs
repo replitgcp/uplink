@@ -20,6 +20,7 @@ use tokio::{
     sync::mpsc::{self},
     time::sleep,
 };
+use warp::constellation::file::{File, FileType};
 use wry::webview::FileDropEvent;
 
 use crate::layouts::storage::{ANIMATION_DASH_SCRIPT, FEEDBACK_TEXT_SCRIPT, FILE_NAME_SCRIPT};
@@ -530,4 +531,18 @@ pub fn storage_coroutine<'a>(
         }
     });
     ch
+}
+
+pub fn thumbnail_to_base64(file: &File) -> String {
+    let ty = file.file_type();
+
+    let mime = match ty {
+        FileType::Mime(mime) => mime.to_string(),
+        FileType::Generic => "application/octet-stream".into(),
+    };
+
+    let prefix = format!("data:{mime};base64,");
+    let base64_image = base64::encode(file.thumbnail());
+    
+    prefix + &base64_image
 }

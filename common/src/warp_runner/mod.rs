@@ -338,8 +338,11 @@ async fn warp_initialization(tesseract: Tesseract) -> Result<manager::Warp, warp
         .await
         .map(|mp| Box::new(mp) as Account)?;
 
+    let mut config = FsIpfsConfig::production(path);
+    config.thumbnail_size = (500, 500);
+
     let storage =
-        warp_fs_ipfs::IpfsFileSystem::new(account.clone(), Some(FsIpfsConfig::production(path)))
+        warp_fs_ipfs::IpfsFileSystem::new(account.clone(), Some(config))
             .await
             .map(|ct| Box::new(ct) as Storage)?;
 
