@@ -296,11 +296,10 @@ fn bootstrap(cx: Scope) -> Element {
 
     match auth_state.read().clone() {
         AuthPages::Restart => {
-            println!("helooo");
-            pin.write().clear();
+            *auth_state.write() = AuthPages::Unlock;
             warp_runner.write_silent().reset();
             warp_runner.write_silent().run();
-            *auth_state.write() = AuthPages::Unlock;
+            pin.write().clear();
             None
         }
         AuthPages::Unlock | AuthPages::CreateAccount => {
