@@ -104,6 +104,8 @@ pub fn Message<'a>(cx: Scope<'a, Props<'a>>) -> Element<'a> {
                 key: "{key}",
                 filename: file.name(),
                 filesize: file.size(),
+                thumbnail: file.thumbnail(),
+                big: true,
                 remote: is_remote,
                 download_pending: cx
                     .props

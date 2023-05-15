@@ -68,6 +68,7 @@ pub fn Reply<'a>(cx: Scope<'a, ReplyProps<'a>>) -> Element<'a> {
                 key: "{key}",
                 filename: file.name(),
                 filesize: file.size(),
+                thumbnail: file.thumbnail(),
                 with_download_button: false,
                 remote: remote,
                 on_press: move |_| {},
